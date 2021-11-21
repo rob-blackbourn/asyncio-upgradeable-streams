@@ -2,6 +2,8 @@
 
 An experiment in upgradeable streams.
 
+## Overview
+
 An upgradeable stream starts life as a simple socket connection, but is capable
 of being "upgraded" to TLS.
 
