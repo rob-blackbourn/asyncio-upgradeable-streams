@@ -9,8 +9,8 @@ of being "upgraded" to TLS.
 
 ## Issues
 
-The solution makes use of private variables which may change at the will of the
-python library maintainer.
+The solution makes use of private variables in the python standard library which
+may change at the will of the python library maintainer.
 
 ## Examples
 
