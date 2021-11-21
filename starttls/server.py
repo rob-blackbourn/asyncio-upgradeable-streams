@@ -12,7 +12,6 @@ async def handle_client(reader: StreamReader, writer: UpgradableStreamWriter) ->
     print("Client connected")
 
     while True:
-        print("Wating for client request")
         request = (await reader.readline()).decode('utf8').rstrip()
         print(f"Read '{request}'")
         if request == 'quit' or request == '':

@@ -3,7 +3,7 @@
 import asyncio
 import ssl
 
-from starttls.scratch import open_upgradable_connection
+from starttls.scratch import open_connection
 
 
 async def start_client():
@@ -12,10 +12,11 @@ async def start_client():
         cafile='/etc/ssl/certs/ca-certificates.crt'
     )
 
-    reader, writer = await open_upgradable_connection(
+    reader, writer = await open_connection(
         "beastie.jetblack.net",
         10001,
-        ctx
+        ssl=ctx,
+        upgradeable=True
     )
     print("Client connected")
 
