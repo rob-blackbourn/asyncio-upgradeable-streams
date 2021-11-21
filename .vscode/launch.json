@@ -15,14 +15,14 @@
             "name": "Server",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/starttls/server.py",
+            "program": "${workspaceFolder}/demos/server.py",
             "console": "integratedTerminal"
         },
         {
             "name": "Client",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/starttls/client.py",
+            "program": "${workspaceFolder}/demos/client.py",
             "console": "integratedTerminal"
         },
     ]

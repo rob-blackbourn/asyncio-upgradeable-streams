@@ -17,6 +17,10 @@
     "cSpell.words": [
         "asyncio",
         "cafile",
-        "INET"
+        "getfqdn",
+        "INET",
+        "readline",
+        "rstrip",
+        "sslcontext"
     ]
   }
