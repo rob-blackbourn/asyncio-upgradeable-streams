@@ -44,9 +44,10 @@ class UpgradableStreamWriter(StreamWriter):
     async def upgrade(self) -> None:
         print("Upgrading " + "server" if self.server_side else "client")
         try:
+            protocol = self.transport.get_protocol()
             transport = await self._loop.start_tls(
                 self.transport,
-                self.transport.get_protocol(),
+                protocol,
                 sslcontext=self.sslcontext,
                 server_side=self.server_side,
                 # server_hostname=self.host
@@ -55,8 +56,8 @@ class UpgradableStreamWriter(StreamWriter):
         except Exception as error:
             print("Failed to upgrade", error)
         reader = StreamReader(limit=2**64, loop=self._loop)
-        self._protocol.upgrade_reader(reader)
-        self._protocol.connection_made(transport)
+        protocol.upgrade_reader(reader)
+        self._transport = transport
         writer = StreamWriter(
             transport,
             self._protocol,

@@ -16,6 +16,7 @@
     "python.testing.pytestEnabled": true,
     "cSpell.words": [
         "asyncio",
-        "cafile"
+        "cafile",
+        "INET"
     ]
   }

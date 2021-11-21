@@ -17,6 +17,10 @@ async def handle_client(reader: StreamReader, writer: UpgradableStreamWriter) ->
         print(f"Read '{request}'")
         if request == 'quit' or request == '':
             break
+        elif request == 'ping':
+            print("Sending pong")
+            writer.write(b'pong\n')
+            await writer.drain()
         elif request == 'upgrade':
             reader, writer = await writer.upgrade()
 

@@ -19,11 +19,23 @@ async def start_client():
     )
     print("Client connected")
 
+    print("Sending ping")
+    writer.write(b'ping\n')
+    response = (await reader.readline()).decode('utf-8').rstrip()
+    print(f"Received: {response}")
+
     writer.write(b'upgrade\n')
     reader, writer = await writer.upgrade()
 
+    print("Sending ping")
+    writer.write(b'ping\n')
+    response = (await reader.readline()).decode('utf-8').rstrip()
+    print(f"Received: {response}")
+
+    print("Sending quit")
     writer.write(b'quit\n')
     await writer.drain()
+
     print("Closing client")
     writer.close()
     await writer.wait_closed()
