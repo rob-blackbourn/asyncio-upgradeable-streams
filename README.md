@@ -38,8 +38,8 @@ First the client sends "PING" to the server. The server should respond
 with "PONG".
 
 Next the client sends "STARTTLS" to instruct the server to upgrade the
-connection to TLS. The client then calls the `upgrade` method on the writer to
-negotiate the upgrade. The method returns a new reader and writer.
+connection to TLS. The client then calls the `upgrade` method on the `writer` to
+negotiate the secure connection. The method returns a new `reader` and `writer`.
 
 Using the new writer the client sends "PING" to the server, this time over the
 encrypted stream. The server should respond with "PONG".
@@ -117,8 +117,8 @@ When the server receives "PING" it responds with "PONG".
 
 When the server receives "QUIT" it closes the connection.
 
-When the server receives "STARTTLS" it calls the upgrade method on the writer
-to negotiate the TLS connection. The method returns a new reader and writer.
+When the server receives "STARTTLS" it calls the `upgrade` method on the `writer`
+to negotiate the TLS connection. The method returns a new `reader` and `writer`.
 
 The code expects certificate and key PEM files in "~/.keys/server.{crt,key}".
 
