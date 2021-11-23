@@ -53,7 +53,9 @@ the TLS negotiation is deferred and the `ssl` parameter is stored for use when
 the connection is upgraded.
 The `writer` has a new method `start_tls` to upgrade the connection to TLS.
 
-1. The client connects without TLS.
+1. The client connects with the `upgradeable` argument set to `True` and an
+   `ssl` context. The TLS negotiation will be deferred until `start_tls` is
+   called on the `writer`.
 
 2. First the client sends "PING" to the server. The server should respond
    with "PONG".
@@ -132,9 +134,11 @@ to enable upgrading to TLS. The `ssl` context is stored for use when a client
 connection is upgraded to TLS.
 The `writer` has a new method `start_tls` to upgrade the connection to TLS.
 
-1. The server listens for client connections.
+1. The server starts and listens for client connections. The `upgradeable` flag
+   is set to `True` and the `ssl` context is provided. The client connections
+   will start without TLS, but can be upgraded by calling `start_tls`.
 
-2. On receiving a connection it enters a read loop.
+2. On receiving a connection the client callback enters a read loop.
 
 3. When the server receives "PING" it responds with "PONG".
 
