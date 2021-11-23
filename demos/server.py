@@ -45,7 +45,7 @@ async def handle_client(
                 raise ValueError('writer not upgradeable')
             print("Upgrading connection to TLS")
             # Upgrade
-            reader, writer = await writer.upgrade()
+            reader, writer = await writer.start_tls()
 
     print("Closing client")
     writer.close()

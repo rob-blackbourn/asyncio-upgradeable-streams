@@ -30,7 +30,7 @@ class UpgradeableStreamWriter(StreamWriter):
         self._server_side = server_side
         self._limit = limit
 
-    async def upgrade(self) -> Tuple[StreamReader, StreamWriter]:
+    async def start_tls(self) -> Tuple[StreamReader, StreamWriter]:
         protocol = self.transport.get_protocol()
         if not isinstance(protocol, UpgradeableStreamReaderProtocol):
             raise ValueError(
@@ -44,7 +44,7 @@ class UpgradeableStreamWriter(StreamWriter):
             server_side=self._server_side,
         )
         reader = StreamReader(limit=self._limit, loop=loop)
-        protocol.upgrade(reader)
+        protocol.set_reader(reader)
         self._transport = transport
         writer = StreamWriter(
             transport,

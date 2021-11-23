@@ -5,8 +5,9 @@ An experiment in upgradeable streams.
 ## Overview
 
 An upgradeable stream starts life as a plain socket connection, but is capable
-of being "upgraded" to TLS. This is sometimes known as [STARTTLS](https://en.wikipedia.org/wiki/Opportunistic_TLS). Common examples of this are
-SMTP, LDAP, and HTTP proxy tunneling with CONNECT.
+of being "upgraded" to TLS. This is sometimes known as
+[STARTTLS](https://en.wikipedia.org/wiki/Opportunistic_TLS).
+Common examples of this are SMTP, LDAP, and HTTP proxy tunneling with CONNECT.
 
 The asyncio library provides
 [loop.start_tls](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.loop.start_tls)
@@ -16,7 +17,7 @@ This project provides an implementation of
 [asyncio.open_connection](https://docs.python.org/3/library/asyncio-stream.html#asyncio.open_connection)
 and [asyncio.start_server](https://docs.python.org/3/library/asyncio-stream.html#asyncio.start_server)
 with an extra optional boolean parameter `upgradeadble`. When this is set the
-TLS negotiation is deferred, and the `writer` has a new method `upgrade` which
+TLS negotiation is deferred, and the `writer` has a new method `start_tls` which
 can be called to upgrade the connection to TLS.
 
 This was tested using Python 3.9.7 on Ubuntu Linux 21.10.
@@ -47,7 +48,7 @@ A new argument `upgradeable` has been added to the
 `open_connection` function to enable upgrading. When `upgradeable` is `True`
 the TLS negotiation is deferred and the `ssl` parameter is stored for use when
 the connection is upgraded.
-The `writer` has a new method `upgrade` to upgrade the connection to TLS.
+The `writer` has a new method `start_tls` to upgrade the connection to TLS.
 
 1. The client connects without TLS.
 
@@ -55,11 +56,12 @@ The `writer` has a new method `upgrade` to upgrade the connection to TLS.
    with "PONG".
 
 3. Next the client sends "STARTTLS" to instruct the server to upgrade the
-   connection to TLS. The client then calls the `upgrade` method on the `writer` to
-   negotiate the secure connection. The method returns a new `reader` and `writer`.
+   connection to TLS. The client then calls the `start_tls` method on the
+   `writer` to negotiate the secure connection. The method returns a new
+   `reader` and `writer`.
 
-4. Using the new writer the client sends "PING" to the server, this time over the
-   encrypted stream. The server should respond with "PONG".
+4. Using the new writer the client sends "PING" to the server, this time over
+   the encrypted stream. The server should respond with "PONG".
 
 5. Finally the client sends "QUIT" to the server and closes the connection.
 
@@ -98,7 +100,7 @@ async def start_client():
 
     print("Upgrading the connection")
     # Upgrade
-    reader, writer = await writer.upgrade()
+    reader, writer = await writer.start_tls()
 
     print(f"The writer ssl context is {writer.get_extra_info('sslcontext')}")
 
@@ -125,7 +127,7 @@ if __name__ == '__main__':
 An extra argument `upgradeable` has been added to the `start_server` function
 to enable upgrading to TLS. The `ssl` context is stored for use when a client
 connection is upgraded to TLS.
-The `writer` has a new method `upgrade` to upgrade the connection to TLS.
+The `writer` has a new method `start_tls` to upgrade the connection to TLS.
 
 1. The server listens for client connections.
 
@@ -133,7 +135,7 @@ The `writer` has a new method `upgrade` to upgrade the connection to TLS.
 
 3. When the server receives "PING" it responds with "PONG".
 
-4. When the server receives "STARTTLS" it calls the `upgrade` method on the
+4. When the server receives "STARTTLS" it calls the `start_tls` method on the
    `writer` to negotiate the TLS connection. The method returns a new `reader`
    and `writer`.
 
@@ -175,7 +177,7 @@ async def handle_client(
                 raise ValueError('writer not upgradeable')
             print("Upgrading connection to TLS")
             # Upgrade
-            reader, writer = await writer.upgrade()
+            reader, writer = await writer.start_tls()
 
     print("Closing client")
     writer.close()
@@ -207,3 +209,8 @@ async def run_server():
 if __name__ == '__main__':
     asyncio.run(run_server())
 ```
+
+## Development
+
+Pull requests are welcome. In particular anything to reduce the reliance on the
+implementation details in the standard library.

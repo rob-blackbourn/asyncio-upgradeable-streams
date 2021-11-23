@@ -50,7 +50,7 @@ async def start_client():
 
     print("Upgrading the connection")
     # Upgrade
-    reader, writer = await writer.upgrade()
+    reader, writer = await writer.start_tls()
 
     print(f"The writer ssl context is {writer.get_extra_info('sslcontext')}")
 
