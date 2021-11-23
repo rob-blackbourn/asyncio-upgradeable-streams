@@ -7,14 +7,14 @@ from asyncio import (
     AbstractEventLoop
 )
 from ssl import SSLContext
-from typing import Any, Callable, Coroutine, Optional
+from typing import Awaitable, Callable, Optional
 
 from .protocol import UpgradeableStreamReaderProtocol
 from .writer import UpgradeableStreamWriter
 
 ClientConnectedCallback = Callable[
-    [StreamReader, UpgradeableStreamWriter],
-    Coroutine[Any, Any, None]
+    [StreamReader, StreamWriter],
+    Awaitable[None]
 ]
 
 

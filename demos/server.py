@@ -18,14 +18,13 @@ from asyncio import StreamReader, StreamWriter
 from os.path import expanduser
 import socket
 import ssl
-from typing import Union
 
 from upgradeable_streams import start_server, UpgradeableStreamWriter
 
 
 async def handle_client(
         reader: StreamReader,
-        writer: Union[UpgradeableStreamWriter, StreamWriter]
+        writer: StreamWriter
 ) -> None:
     print("Client connected")
 
