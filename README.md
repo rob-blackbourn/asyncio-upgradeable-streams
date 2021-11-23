@@ -24,7 +24,7 @@ This was tested using Python 3.9.7 on Ubuntu Linux 21.10.
 ## Issues
 
 The solution makes use of private variables in the python standard library which
-may change at the will of the python library maintainer. In particular in has
+may change at the will of the python library maintainer. In particular it has
 to reset the reader in the `StreamReaderProtocol` and the transport in the
 `StreamWriter`.
 
@@ -43,24 +43,25 @@ environment.
 
 ### Client
 
-Here is the client. A new argument `upgradeable` has been added to the
-`open_connection` function, to enable upgrading. When `upgradeable` is `True`
-the `ssl` parameter is stored for use when the connection is upgraded.
+A new argument `upgradeable` has been added to the
+`open_connection` function to enable upgrading. When `upgradeable` is `True`
+the TLS negotiation is deferred and the `ssl` parameter is stored for use when
+the connection is upgraded.
 The `writer` has a new method `upgrade` to upgrade the connection to TLS.
 
-The client connects without TLS.
+1. The client connects without TLS.
 
-First the client sends "PING" to the server. The server should respond
-with "PONG".
+2. First the client sends "PING" to the server. The server should respond
+   with "PONG".
 
-Next the client sends "STARTTLS" to instruct the server to upgrade the
-connection to TLS. The client then calls the `upgrade` method on the `writer` to
-negotiate the secure connection. The method returns a new `reader` and `writer`.
+3. Next the client sends "STARTTLS" to instruct the server to upgrade the
+   connection to TLS. The client then calls the `upgrade` method on the `writer` to
+   negotiate the secure connection. The method returns a new `reader` and `writer`.
 
-Using the new writer the client sends "PING" to the server, this time over the
-encrypted stream. The server should respond with "PONG".
+4. Using the new writer the client sends "PING" to the server, this time over the
+   encrypted stream. The server should respond with "PONG".
 
-Finally the client sends "QUIT" to the server and closes the connection.
+5. Finally the client sends "QUIT" to the server and closes the connection.
 
 ```python
 import asyncio
@@ -126,16 +127,17 @@ to enable upgrading to TLS. The `ssl` context is stored for use when a client
 connection is upgraded to TLS.
 The `writer` has a new method `upgrade` to upgrade the connection to TLS.
 
-The server listens for client connections.
+1. The server listens for client connections.
 
-On receiving a connection it enters a read loop.
+2. On receiving a connection it enters a read loop.
 
-When the server receives "PING" it responds with "PONG".
+3. When the server receives "PING" it responds with "PONG".
 
-When the server receives "QUIT" it closes the connection.
+4. When the server receives "STARTTLS" it calls the `upgrade` method on the
+   `writer` to negotiate the TLS connection. The method returns a new `reader`
+   and `writer`.
 
-When the server receives "STARTTLS" it calls the `upgrade` method on the `writer`
-to negotiate the TLS connection. The method returns a new `reader` and `writer`.
+5. When the server receives "QUIT" it closes the connection.
 
 The code expects certificate and key PEM files in "~/.keys/server.{crt,key}".
 
