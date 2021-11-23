@@ -14,6 +14,8 @@ and [asyncio.start_server](https://docs.python.org/3/library/asyncio-stream.html
 with an extra optional boolean parameter `upgradeadble`. When this is set, the `writer` has a new method `upgrade` which can be called to
 upgrade the connection to TLS.
 
+This was tested using Python 3.9.7 on Ubuntu Linux 21.10.
+
 ## Issues
 
 The solution makes use of private variables in the python standard library which
@@ -29,6 +31,20 @@ environment.
 Here is the client. A new argument `upgradeable` has been added to the
 `open_connection` function, to enable upgrading. The `writer` has a new method
 `upgrade` to upgrade the connection.
+
+The client connects without TLS.
+
+First the client sends "PING" to the server. The server should respond
+with "PONG".
+
+Next the client sends "STARTTLS" to instruct the server to upgrade the
+connection to TLS. The client then calls the `upgrade` method on the writer to
+negotiate the upgrade. The method returns a new reader and writer.
+
+Using the new writer the client sends "PING" to the server, this time over the
+encrypted stream. The server should respond with "PONG".
+
+Finally the client sends "QUIT" to the server and closes the connection.
 
 ```python
 import asyncio
@@ -55,13 +71,13 @@ async def start_client():
 
     print(f"The writer ssl context is {writer.get_extra_info('sslcontext')}")
 
-    print("Sending ping")
-    writer.write(b'ping\n')
+    print("Sending PING")
+    writer.write(b'PING\n')
     response = (await reader.readline()).decode('utf-8').rstrip()
     print(f"Received: {response}")
 
-    print("Sending upgrade")
-    writer.write(b'upgrade\n')
+    print("Sending STARTTLS")
+    writer.write(b'STARTTLS\n')
 
     print("Upgrading the connection")
     # Upgrade
@@ -69,13 +85,13 @@ async def start_client():
 
     print(f"The writer ssl context is {writer.get_extra_info('sslcontext')}")
 
-    print("Sending ping")
-    writer.write(b'ping\n')
+    print("Sending PING")
+    writer.write(b'PING\n')
     response = (await reader.readline()).decode('utf-8').rstrip()
     print(f"Received: {response}")
 
-    print("Sending quit")
-    writer.write(b'quit\n')
+    print("Sending QUIT")
+    writer.write(b'QUIT\n')
     await writer.drain()
 
     print("Closing client")
@@ -92,6 +108,17 @@ if __name__ == '__main__':
 An extra argument `upgradeable` has been added to the `start_server` function
 to enable upgrading to TLS. The `writer` has a new method `upgrade` to upgrade
 the connection to TLS.
+
+The server listens for client connections.
+
+On receiving a connection it enters a read loop.
+
+When the server receives "PING" it responds with "PONG".
+
+When the server receives "QUIT" it closes the connection.
+
+When the server receives "STARTTLS" it calls the upgrade method on the writer
+to negotiate the TLS connection. The method returns a new reader and writer.
 
 The code expects certificate and key PEM files in "~/.keys/server.{crt,key}".
 
@@ -116,18 +143,18 @@ async def handle_client(
         request = (await reader.readline()).decode('utf8').rstrip()
         print(f"Read '{request}'")
 
-        if request == 'quit':
+        if request == 'QUIT':
             break
 
-        elif request == 'ping':
+        elif request == 'PING':
             print("Sending pong")
-            writer.write(b'pong\n')
+            writer.write(b'PONG\n')
             await writer.drain()
 
-        elif request == 'upgrade':
+        elif request == 'STARTTLS':
             if not isinstance(writer, UpgradeableStreamWriter):
                 raise ValueError('writer not upgradeable')
-            print("Upgrading")
+            print("Upgrading connection to TLS")
             # Upgrade
             reader, writer = await writer.upgrade()
 
