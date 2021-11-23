@@ -7,7 +7,10 @@ An experiment in upgradeable streams.
 An upgradeable stream starts life as a plain socket connection, but is capable
 of being "upgraded" to TLS. This is sometimes known as
 [STARTTLS](https://en.wikipedia.org/wiki/Opportunistic_TLS).
-Common examples of this are SMTP, LDAP, and HTTP proxy tunneling with CONNECT.
+Common examples of this are
+[SMTP](https://datatracker.ietf.org/doc/html/rfc3207),
+[LDAP](https://datatracker.ietf.org/doc/html/rfc2830), and HTTP proxy tunneling
+with [CONNECT](https://www.ietf.org/rfc/rfc2817.txt).
 
 The asyncio library provides
 [loop.start_tls](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.loop.start_tls)
