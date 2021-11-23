@@ -22,6 +22,7 @@
         "getfqdn",
         "INET",
         "isinstance",
+        "jetblack",
         "readline",
         "rstrip",
         "sslcontext",
