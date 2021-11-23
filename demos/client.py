@@ -1,4 +1,20 @@
-"""Example Client"""
+"""
+Example Client
+
+The client connects without TLS.
+
+First the client sends "PING" to the server. The server should respond
+with "PONG".
+
+Next the client sends "STARTTLS" to instruct the server to upgrade the
+connection to TLS. The client then calls the upgrade method on the writer to
+negotiate the upgrade. The upgrade method returns a new reader and writer.
+
+Using the new writer the client sends "PING" to the server, this time over the
+encrypted stream. The server should respond with "PONG".
+
+Finally the client sends "QUIT" to the server and closes the connection.
+"""
 
 import asyncio
 import socket
@@ -24,13 +40,13 @@ async def start_client():
 
     print(f"The writer ssl context is {writer.get_extra_info('sslcontext')}")
 
-    print("Sending ping")
-    writer.write(b'ping\n')
+    print("Sending PING")
+    writer.write(b'PING\n')
     response = (await reader.readline()).decode('utf-8').rstrip()
     print(f"Received: {response}")
 
-    print("Sending upgrade")
-    writer.write(b'upgrade\n')
+    print("Sending STARTTLS")
+    writer.write(b'STARTTLS\n')
 
     print("Upgrading the connection")
     # Upgrade
@@ -38,13 +54,13 @@ async def start_client():
 
     print(f"The writer ssl context is {writer.get_extra_info('sslcontext')}")
 
-    print("Sending ping")
-    writer.write(b'ping\n')
+    print("Sending PING")
+    writer.write(b'PING\n')
     response = (await reader.readline()).decode('utf-8').rstrip()
     print(f"Received: {response}")
 
-    print("Sending quit")
-    writer.write(b'quit\n')
+    print("Sending QUIT")
+    writer.write(b'QUIT\n')
     await writer.drain()
 
     print("Closing client")

@@ -6,7 +6,7 @@ import weakref
 
 class UpgradeableStreamReaderProtocol(StreamReaderProtocol):
 
-    def upgrade_reader(self, reader: StreamReader):
+    def upgrade(self, reader: StreamReader):
         if self._stream_reader is not None:  # type: ignore
             self._stream_reader.set_exception(  # type: ignore
                 Exception('connection upgraded.')

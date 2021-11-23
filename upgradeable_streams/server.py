@@ -12,7 +12,6 @@ from typing import Any, Callable, Coroutine, Optional
 from .protocol import UpgradeableStreamReaderProtocol
 from .writer import UpgradeableStreamWriter
 
-
 ClientConnectedCallback = Callable[
     [StreamReader, UpgradeableStreamWriter],
     Coroutine[Any, Any, None]
@@ -21,8 +20,8 @@ ClientConnectedCallback = Callable[
 
 async def start_server(
     client_connected_cb: ClientConnectedCallback,
-    host: Optional[str] = None,
-    port: Optional[int] = None,
+    host: str,
+    port: int,
     *,
     upgradeable: bool = False,
     ssl: Optional[SSLContext] = None,
@@ -31,7 +30,7 @@ async def start_server(
     **kwargs
 ):
     if not upgradeable:
-        return await start_server(
+        return await asyncio.start_server(
             client_connected_cb,
             host,
             port,
@@ -45,19 +44,24 @@ async def start_server(
         raise ValueError('upgradeable not valid without ssl')
 
     if loop is None:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
 
     async def client_callback_wrapper(reader: StreamReader, writer: StreamWriter):
+        assert loop is not None
+        assert ssl is not None
         writer = UpgradeableStreamWriter(
             writer.transport,
             writer.transport.get_protocol(),
             reader,
+            loop,
             ssl,
             True,
-            loop
+            limit
         )
 
-        await client_connected_cb(reader, writer)
+        future = client_connected_cb(reader, writer)
+        if future is not None:
+            await future
 
     def factory():
         reader = StreamReader(limit=limit, loop=loop)

@@ -8,7 +8,7 @@ from asyncio import (
     AbstractEventLoop
 )
 from ssl import SSLContext
-from typing import Optional, Tuple, cast
+from typing import Optional, Tuple
 
 from .protocol import UpgradeableStreamReaderProtocol
 
@@ -20,28 +20,31 @@ class UpgradeableStreamWriter(StreamWriter):
             transport: BaseTransport,
             protocol: BaseProtocol,
             reader: Optional[StreamReader],
+            loop: AbstractEventLoop,
             sslcontext: SSLContext,
             server_side: bool,
-            loop: AbstractEventLoop
+            limit: int
     ) -> None:
         super().__init__(transport, protocol, reader, loop)
-        self.sslcontext = sslcontext
-        self.server_side = server_side
+        self._sslcontext = sslcontext
+        self._server_side = server_side
+        self._limit = limit
 
     async def upgrade(self) -> Tuple[StreamReader, StreamWriter]:
-        protocol = cast(
-            UpgradeableStreamReaderProtocol,
-            self.transport.get_protocol()
-        )
+        protocol = self.transport.get_protocol()
+        if not isinstance(protocol, UpgradeableStreamReaderProtocol):
+            raise ValueError(
+                "protocol must be UpgradeableStreamReaderProtocol"
+            )
         loop: AbstractEventLoop = self._loop  # type: ignore
         transport = await loop.start_tls(
             self.transport,
             protocol,
-            sslcontext=self.sslcontext,
-            server_side=self.server_side,
+            sslcontext=self._sslcontext,
+            server_side=self._server_side,
         )
-        reader = StreamReader(limit=2**64, loop=loop)
-        protocol.upgrade_reader(reader)
+        reader = StreamReader(limit=self._limit, loop=loop)
+        protocol.upgrade(reader)
         self._transport = transport
         writer = StreamWriter(
             transport,

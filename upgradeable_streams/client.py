@@ -6,7 +6,6 @@ from asyncio import (
     StreamWriter,
     AbstractEventLoop
 )
-import socket
 from ssl import SSLContext
 from typing import Optional, Tuple
 
@@ -18,18 +17,20 @@ async def open_connection(
     host: str,
     port: int,
     *,
+    loop: Optional[AbstractEventLoop] = None,
     upgradeable: bool = False,
     ssl: Optional[SSLContext] = None,
-    loop: Optional[AbstractEventLoop] = None,
-    **kwargs
+    limit: int = 2**16,
+    **kwds
 ) -> Tuple[StreamReader, StreamWriter]:
     if not upgradeable:
         return await asyncio.open_connection(
             host,
             port,
             ssl=ssl,
+            limit=limit,
             loop=loop,
-            **kwargs
+            **kwds
         )
 
     if ssl is None:
@@ -38,17 +39,17 @@ async def open_connection(
     if loop is None:
         loop = asyncio.get_running_loop()
 
-    reader = StreamReader(limit=2**64, loop=loop)
+    reader = StreamReader(limit=limit, loop=loop)
     protocol = UpgradeableStreamReaderProtocol(reader, loop=loop)
     transport, _ = await loop.create_connection(
-        lambda: protocol, host, port, family=socket.AF_INET
-    )
+        lambda: protocol, host, port, **kwds)
     writer = UpgradeableStreamWriter(
         transport,
         protocol,
         reader,
+        loop,
         ssl,
         False,
-        loop
+        limit
     )
     return reader, writer

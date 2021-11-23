@@ -1,4 +1,17 @@
-"""Example Server"""
+"""
+Example Server
+
+The server listens for client connections.
+
+On receiving a connection it enters a read loop.
+
+When the server receives "PING" it responds with "PONG".
+
+When the server receives "QUIT" it closes the connection.
+
+When the server receives "STARTTLS" it calls the upgrade method on the writer
+to negotiate the TLS connection. The method returns a new reader and writer.
+"""
 
 import asyncio
 from asyncio import StreamReader, StreamWriter
@@ -20,18 +33,18 @@ async def handle_client(
         request = (await reader.readline()).decode('utf8').rstrip()
         print(f"Read '{request}'")
 
-        if request == 'quit':
+        if request == 'QUIT':
             break
 
-        elif request == 'ping':
+        elif request == 'PING':
             print("Sending pong")
-            writer.write(b'pong\n')
+            writer.write(b'PONG\n')
             await writer.drain()
 
-        elif request == 'upgrade':
+        elif request == 'STARTTLS':
             if not isinstance(writer, UpgradeableStreamWriter):
                 raise ValueError('writer not upgradeable')
-            print("Upgrading")
+            print("Upgrading connection to TLS")
             # Upgrade
             reader, writer = await writer.upgrade()
 
