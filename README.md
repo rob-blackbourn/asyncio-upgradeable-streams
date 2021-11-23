@@ -21,7 +21,7 @@ This was tested using Python 3.9.7 on Ubuntu Linux 21.10.
 The solution makes use of private variables in the python standard library which
 may change at the will of the python library maintainer.
 
-# Installation
+## Installation
 
 This can be installed with pip.
 
