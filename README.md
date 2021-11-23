@@ -37,8 +37,9 @@ environment.
 ### Client
 
 Here is the client. A new argument `upgradeable` has been added to the
-`open_connection` function, to enable upgrading. The `writer` has a new method
-`upgrade` to upgrade the connection.
+`open_connection` function, to enable upgrading. When `upgradeable` is `True`
+the `ssl` parameter is stored for use when the connection is upgraded.
+The `writer` has a new method `upgrade` to upgrade the connection to TLS.
 
 The client connects without TLS.
 
@@ -114,8 +115,9 @@ if __name__ == '__main__':
 ### Server
 
 An extra argument `upgradeable` has been added to the `start_server` function
-to enable upgrading to TLS. The `writer` has a new method `upgrade` to upgrade
-the connection to TLS.
+to enable upgrading to TLS. The `ssl` context is stored for use when a client
+connection is upgraded to TLS.
+The `writer` has a new method `upgrade` to upgrade the connection to TLS.
 
 The server listens for client connections.
 
