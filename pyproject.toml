@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "jetblack-upgradeable-streams"
+version = "0.1.0"
+description = "An experiment in upgradeable streams"
+authors = ["Rob Blackbourn <rob.blackbourn@gmail.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+packages = [
+    { include = "upgradeable_streams" }
+]
+repository = "https://github.com/rob-blackbourn/asyncio-upgradeable-streams"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+autopep8 = "^1.4"
+mypy = "^0.910"
+pylint = "^2.11"
+
+[build-system]
+requires = ["poetry>=1.0"]
+build-backend = "poetry.masonry.api"
