@@ -28,7 +28,7 @@ This was tested using Python 3.9.7 on Ubuntu Linux 21.10.
 ## Issues
 
 The solution makes use of private variables in the python standard library which
-may change at the will of the python library maintainer. In particular it has
+may change at the whim of the python library maintainer. In particular it has
 to reset the reader in the `StreamReaderProtocol` and the transport in the
 `StreamWriter`.
 

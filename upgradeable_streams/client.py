@@ -8,6 +8,7 @@ from asyncio import (
 )
 from ssl import SSLContext
 from typing import Optional, Tuple
+import warnings
 
 from .protocol import UpgradeableStreamReaderProtocol
 from .writer import UpgradeableStreamWriter
@@ -24,6 +25,7 @@ async def open_connection(
     **kwds
 ) -> Tuple[StreamReader, StreamWriter]:
     if not upgradeable:
+        # Without the upgradeable flag use the standard library implementation.
         return await asyncio.open_connection(
             host,
             port,
@@ -38,11 +40,17 @@ async def open_connection(
 
     if loop is None:
         loop = asyncio.get_running_loop()
+    else:
+        warnings.warn("The loop argument is deprecated since Python 3.8, "
+                      "and scheduled for removal in Python 3.10.",
+                      DeprecationWarning, stacklevel=2)
 
     reader = StreamReader(limit=limit, loop=loop)
     protocol = UpgradeableStreamReaderProtocol(reader, loop=loop)
     transport, _ = await loop.create_connection(
         lambda: protocol, host, port, **kwds)
+
+    # Replace the writer with the upgradeable implementation.
     writer = UpgradeableStreamWriter(
         transport,
         protocol,
@@ -52,4 +60,5 @@ async def open_connection(
         False,
         limit
     )
+
     return reader, writer

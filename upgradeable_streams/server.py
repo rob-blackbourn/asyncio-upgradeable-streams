@@ -8,6 +8,7 @@ from asyncio import (
 )
 from ssl import SSLContext
 from typing import Awaitable, Callable, Optional
+import warnings
 
 from .protocol import UpgradeableStreamReaderProtocol
 from .writer import UpgradeableStreamWriter
@@ -30,6 +31,7 @@ async def start_server(
     **kwargs
 ):
     if not upgradeable:
+        # Without the upgradeable flag use the standard library implementation.
         return await asyncio.start_server(
             client_connected_cb,
             host,
@@ -45,8 +47,17 @@ async def start_server(
 
     if loop is None:
         loop = asyncio.get_running_loop()
+    else:
+        warnings.warn("The loop argument is deprecated since Python 3.8, "
+                      "and scheduled for removal in Python 3.10.",
+                      DeprecationWarning, stacklevel=2)
 
-    async def client_callback_wrapper(reader: StreamReader, writer: StreamWriter):
+    async def client_connected_cb_shim(
+            reader: StreamReader,
+            writer: StreamWriter
+    ) -> None:
+        # Shim the client callback to replace the writer with the upgradeable
+        # implementation.
         assert loop is not None
         assert ssl is not None
         writer = UpgradeableStreamWriter(
@@ -59,6 +70,7 @@ async def start_server(
             limit
         )
 
+        # Now call the client callback.
         future = client_connected_cb(reader, writer)
         if future is not None:
             await future
@@ -67,7 +79,7 @@ async def start_server(
         reader = StreamReader(limit=limit, loop=loop)
         protocol = UpgradeableStreamReaderProtocol(
             reader,
-            client_callback_wrapper,
+            client_connected_cb_shim,
             loop=loop
         )
         return protocol
