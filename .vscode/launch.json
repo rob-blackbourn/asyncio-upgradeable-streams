@@ -25,5 +25,19 @@
             "program": "${workspaceFolder}/demos/client.py",
             "console": "integratedTerminal"
         },
+        {
+            "name": "Server 3.11",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/demos/server_3_11.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Client 3.11",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/demos/client_3_11.py",
+            "console": "integratedTerminal"
+        },
     ]
 }

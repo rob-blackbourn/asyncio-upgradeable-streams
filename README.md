@@ -1,5 +1,19 @@
 # asyncio-upgradeable-streams
 
+## Update
+
+As of Python 3.11 the
+[`start_tls`](https://docs.python.org/3/library/asyncio-stream.html#asyncio.StreamWriter.start_tls)
+functionality has been fixed.
+
+You can find an example client and server (`client_3_11.py`, `server_3_11.py`)
+in the demos folder.
+
+
+---
+
+# Original README
+
 An experiment in upgradeable streams.
 
 ## Overview
