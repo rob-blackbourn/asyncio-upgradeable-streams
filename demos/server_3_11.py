@@ -10,7 +10,7 @@ When the server receives "PING" it responds with "PONG".
 When the server receives "QUIT" it closes the connection.
 
 When the server receives "STARTTLS" it calls the upgrade method on the writer
-to negotiate the TLS connection. The method returns a new reader and writer.
+to negotiate the TLS connection.
 """
 
 import asyncio
@@ -42,7 +42,6 @@ async def handle_client(
 
         elif request == 'STARTTLS':
             print("Upgrading connection to TLS")
-            # Upgrade
             await writer.start_tls(ctx)
 
     print("Closing client")
@@ -58,10 +57,10 @@ async def run_server():
         expanduser("~/.keys/server.crt"),
         expanduser("~/.keys/server.key")
     )
-    host = socket.getfqdn()
+    handler = partial(handle_client, ctx)
 
-    print("Starting server as upgradeable")
-    server = await asyncio.start_server(partial(handle_client, ctx), host, 10001)
+    print("Starting server")
+    server = await asyncio.start_server(handler, socket.getfqdn(), 10001)
 
     async with server:
         await server.serve_forever()

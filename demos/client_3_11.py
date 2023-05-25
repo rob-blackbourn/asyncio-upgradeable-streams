@@ -1,17 +1,19 @@
 """
 Example Client
 
-The client connects without TLS.
+The client connects without TLS, but using the fully qualified domain name. To
+authenticate the server, the FQDN is required. This can be specified either at
+connection time, or with the start_tls call.
 
-First the client sends "PING" to the server. The server should respond
-with "PONG".
+First the client sends a "PING" over the unencrypted stream  to the server. The
+server should respond with "PONG".
 
 Next the client sends "STARTTLS" to instruct the server to upgrade the
 connection to TLS. The client then calls the upgrade method on the writer to
-negotiate the upgrade. The upgrade method returns a new reader and writer.
+negotiate the upgrade.
 
-Using the new writer the client sends "PING" to the server, this time over the
-encrypted stream. The server should respond with "PONG".
+The client sends "PING" to the server, this time over the encrypted stream. The
+server should respond with "PONG".
 
 Finally the client sends "QUIT" to the server and closes the connection.
 """
@@ -22,14 +24,9 @@ import ssl
 
 
 async def start_client():
-    ctx = ssl.create_default_context(
-        purpose=ssl.Purpose.SERVER_AUTH,
-        cafile='/etc/ssl/certs/ca-certificates.crt'
-    )
-    host = socket.getfqdn()
 
-    print("Connect to server as upgradeable")
-    reader, writer = await asyncio.open_connection(host, 10001)
+    print("Connect to the server with using the fully qualified domain name")
+    reader, writer = await asyncio.open_connection(socket.getfqdn(), 10001)
 
     print(f"The writer ssl context is {writer.get_extra_info('sslcontext')}")
 
@@ -41,7 +38,11 @@ async def start_client():
     print("Sending STARTTLS")
     writer.write(b'STARTTLS\n')
 
-    print("Upgrading the connection")
+    print("Upgrade the connection to TLS")
+    ctx = ssl.create_default_context(
+        purpose=ssl.Purpose.SERVER_AUTH,
+        cafile='/etc/ssl/certs/ca-certificates.crt'
+    )
     await writer.start_tls(ctx)
 
     print(f"The writer ssl context is {writer.get_extra_info('sslcontext')}")
