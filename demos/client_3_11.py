@@ -28,7 +28,7 @@ async def start_client():
     print("Connect to the server with using the fully qualified domain name")
     reader, writer = await asyncio.open_connection(socket.getfqdn(), 10001)
 
-    print(f"The writer ssl context is {writer.get_extra_info('sslcontext')}")
+    print(f"The server certificate is {writer.get_extra_info('peercert')}")
 
     print("Sending PING")
     writer.write(b'PING\n')
@@ -45,7 +45,7 @@ async def start_client():
     )
     await writer.start_tls(ctx)
 
-    print(f"The writer ssl context is {writer.get_extra_info('sslcontext')}")
+    print(f"The server certificate is {writer.get_extra_info('peercert')}")
 
     print("Sending PING")
     writer.write(b'PING\n')
